@@ -7,7 +7,7 @@ async function main() {
 		"http://127.0.0.1:8545"
 	);
 	const wallet = new ethers.Wallet(
-		"0xd6e421bd2a58a2c0a030278c7af0f906f98af8c4de85a5482c029f2cb5d55458",
+		"0xccf64d6390a0938b30cf8d9dbded876cf5960bb5080625ce17535ae26935c092",
 		provider
 	);
 	const abi = fs.readFileSync(
@@ -21,7 +21,15 @@ async function main() {
 	const contractFactory = new ethers.ContractFactory(abi, binary, wallet);
 	console.log("Deploying, please wait...");
 	const contract = await contractFactory.deploy();
-	console.log(contract);
+	await contract.deployTransaction.wait(1);
+
+	// Get favorite number
+	const currentFavoriteNumber = await contract.retrieve();
+	console.log(`Current favorite number: ${currentFavoriteNumber.toString()}`);
+	const transactionResponse = await contract.store("7");
+	const transactionReceipt = await transactionResponse.wait(1);
+	const updatedFavoriteNumber = await contract.retrieve();
+	console.log(`Updated favorite number: ${updatedFavoriteNumber.toString()}`);
 }
 
 main()
